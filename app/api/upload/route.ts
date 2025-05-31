@@ -26,8 +26,8 @@ export async function POST(req: Request) {
         },
       }
     );
-  } catch (err) {
-    return new Response(
+
+p0    return new Response(
       JSON.stringify({ error: "Upload failed", details: (err as Error).message }),
       { status: 500 }
     );

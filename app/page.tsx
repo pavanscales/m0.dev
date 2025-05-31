@@ -116,7 +116,7 @@ export default function Landingpage() {
                   placeholder="Describe the mobile app you want to build..."
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  className="w-full min-h-[140px] border-0 focus-visible:ring-0 text-lg p-6 resize-none bg-black text-white placeholder:text-gray-500 transition-colors duration-300"
+                  className="w-full min-h-[110px] border-0 focus-visible:ring-0 text-lg p-6 resize-none bg-black text-white placeholder:text-gray-500 transition-colors duration-300"
                   disabled={isGenerating}
                 />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2">
@@ -207,4 +207,3 @@ export default function Landingpage() {
     </div>
   )
 }
-
