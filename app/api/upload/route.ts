@@ -1,23 +1,29 @@
 // app/api/upload/route.ts
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   try {
     const formData = await req.formData();
-    const description = formData.get("description")?.toString() || "";
-    const file = formData.get("image") as File | null;
 
-    console.log("Description:", description);
-    console.log("File:", file);
+    const description = formData.get("description");
+    const file = formData.get("image");
 
-    // You can’t directly access file path or save it like with formidable,
-    // but you can read the file content if needed:
-    // const fileBuffer = await file?.arrayBuffer();
+    if (typeof description !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Invalid description format" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const fileName = file && file instanceof File ? file.name : null;
+
+    console.log("📝 Description:", description);
+    console.log("🖼️ File:", fileName);
 
     return new Response(
       JSON.stringify({
         message: "Upload successful",
         description,
-        fileName: file?.name || null,
+        fileName,
       }),
       {
         status: 200,
@@ -26,10 +32,20 @@ export async function POST(req: Request) {
         },
       }
     );
+  } catch (err) {
+    console.error("❌ Upload error:", err);
 
-p0    return new Response(
-      JSON.stringify({ error: "Upload failed", details: (err as Error).message }),
-      { status: 500 }
+    return new Response(
+      JSON.stringify({
+        error: "Upload failed",
+        details: err instanceof Error ? err.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
   }
 }
