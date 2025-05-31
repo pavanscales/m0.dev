@@ -1,13 +1,13 @@
 "use client"
 
-import React, { useState, useRef, useCallback, useEffect, useMemo } from "react"
+import React, { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { ImageIcon, Send } from "lucide-react"
 
-const SUGGESTIONS = Object.freeze([
+const SUGGESTIONS = [
   "Make a visual novel game",
   "Make an Airbnb-style app",
   "Make an Instagram-style app",
@@ -17,33 +17,27 @@ const SUGGESTIONS = Object.freeze([
   "Create a todo list",
   "Design a weather dashboard",
   "Design a fitness tracker",
-])
+]
 
 export default function Landingpage() {
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [responseMessage, setResponseMessage] = useState<string | null>(null)
-
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     document.documentElement.classList.add("dark")
   }, [])
 
-  const handleImageClick = useCallback(() => {
-    fileInputRef.current?.click()
-  }, [])
+  const handleImageClick = () => fileInputRef.current?.click()
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) setSelectedFile(file)
-    },
-    []
-  )
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) setSelectedFile(file)
+  }
 
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = async () => {
     const trimmed = inputValue.trim()
     if (!trimmed) return
 
@@ -71,25 +65,10 @@ export default function Landingpage() {
     } finally {
       setIsLoading(false)
     }
-  }, [inputValue, selectedFile])
-
-  const suggestionBadges = useMemo(
-    () =>
-      SUGGESTIONS.map((text) => (
-        <Badge
-          key={text}
-          variant="outline"
-          className="cursor-pointer hover:bg-gray-700 transition"
-          onClick={() => setInputValue(text)}
-        >
-          {text}
-        </Badge>
-      )),
-    []
-  )
+  }
 
   return (
-    <div className="min-h-screen bg-black transition-colors duration-300">
+    <div className="min-h-screen bg-black">
       <main className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
@@ -151,7 +130,6 @@ export default function Landingpage() {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
                   >
                     <circle
                       className="opacity-25"
@@ -173,8 +151,8 @@ export default function Landingpage() {
               </Button>
             </div>
 
-            <div className="flex items-center justify-between px-6 py-3 ">
-              <div className="text-sm text-gray-400">5 free messages left today.</div>
+            <div className="px-6 py-3 text-sm text-gray-400">
+              5 free messages left today.
             </div>
           </Card>
 
@@ -185,7 +163,16 @@ export default function Landingpage() {
           )}
 
           <div className="flex flex-wrap justify-center mt-10 gap-4">
-            {suggestionBadges}
+            {SUGGESTIONS.map((text) => (
+              <Badge
+                key={text}
+                variant="outline"
+                className="cursor-pointer hover:bg-gray-700 transition"
+                onClick={() => setInputValue(text)}
+              >
+                {text}
+              </Badge>
+            ))}
           </div>
         </div>
       </main>
