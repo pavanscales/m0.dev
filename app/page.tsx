@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -96,14 +95,15 @@ export default function Landingpage() {
         <input
           type="text"
           placeholder="Describe the mobile app you want to build..."
-          className={`w-full rounded-xl bg-gray-900 border border-gray-700 placeholder-gray-500 text-white text-lg pl-14 pr-14 py-4
-            focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-md transition
+          className={`w-full rounded-xl bg-gray-900 border border-gray-600 placeholder-gray-500 text-white text-lg pl-14 pr-14 py-4
+            focus:outline-none focus:border-gray-400 focus:ring-0 shadow-none transition
             disabled:cursor-not-allowed disabled:opacity-60`}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={isGenerating}
           aria-label="App description input"
           autoComplete="off"
+          spellCheck={false}
         />
 
         {/* Left icon: Image Upload */}
@@ -112,7 +112,7 @@ export default function Landingpage() {
           onClick={handleImageIconClick}
           disabled={isGenerating}
           aria-label="Upload image"
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition"
           tabIndex={0}
         >
           <ImageIcon className="w-6 h-6" />
@@ -124,7 +124,7 @@ export default function Landingpage() {
             type="button"
             onClick={handleClearInput}
             aria-label="Clear input"
-            className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
+            className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition"
             tabIndex={0}
           >
             ×
@@ -147,8 +147,8 @@ export default function Landingpage() {
           onClick={handleGenerateApp}
           disabled={!inputValue.trim() || isGenerating}
           aria-label="Generate App"
-          className={`absolute right-4 top-1/2 -translate-y-1/2 text-white bg-blue-600 rounded-full p-2
-            hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition
+          className={`absolute right-4 top-1/2 -translate-y-1/2 text-white bg-gray-800 rounded-full p-2
+            hover:bg-gray-700 focus:outline-none focus:ring-0 transition
             ${isGenerating ? "cursor-wait" : "cursor-pointer"}`}
         >
           {isGenerating ? (
@@ -183,7 +183,7 @@ export default function Landingpage() {
       <div className="flex items-center justify-between max-w-xl w-full mt-3 text-gray-400 text-sm select-none">
         <div>
           5 free messages left today.{" "}
-          <button className="underline hover:text-white transition" type="button">
+          <button className="underline hover:text-gray-300 transition" type="button">
             Upgrade
           </button>
         </div>
@@ -194,7 +194,7 @@ export default function Landingpage() {
           className={`select-none cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition
             ${
               isPublic
-                ? "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 : "bg-gray-700 text-gray-300 hover:bg-gray-600"
             }`}
           aria-pressed={isPublic}
