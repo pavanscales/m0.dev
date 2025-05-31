@@ -1,13 +1,6 @@
 "use client"
 
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  useTransition,
-  useMemo,
-} from "react"
+import React, { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
@@ -28,58 +21,58 @@ const SUGGESTIONS = Object.freeze([
 
 export default function Landingpage() {
   const [inputValue, setInputValue] = useState("")
-  const [isGenerating, startGenerating] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [responseMessage, setResponseMessage] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // 🔥 Force dark mode once (runs only on mount)
   useEffect(() => {
     document.documentElement.classList.add("dark")
   }, [])
 
-  // 🔄 Memoized handler to open file dialog
-  const handleImageIconClick = useCallback(() => {
+  const handleImageClick = useCallback(() => {
     fileInputRef.current?.click()
   }, [])
 
-  // 🖼️ File change logic
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) setSelectedFile(file)
-  }, [])
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (file) setSelectedFile(file)
+    },
+    []
+  )
 
-  // 🚀 Form submission logic
-  const handleGenerateApp = useCallback(() => {
-    const trimmedInput = inputValue.trim()
-    if (!trimmedInput) return
+  const handleGenerate = useCallback(async () => {
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
 
-    startGenerating(() => {
-      setResponseMessage(null)
+    setIsLoading(true)
+    setResponseMessage(null)
 
+    try {
       const formData = new FormData()
-      formData.append("description", trimmedInput)
+      formData.append("description", trimmed)
       if (selectedFile) formData.append("image", selectedFile)
 
-      fetch("/api/upload", {
+      const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       })
-        .then(async (res) => {
-          if (!res.ok) throw new Error(`Server error: ${res.status}`)
-          const data = await res.json()
-          setResponseMessage(`✅ ${data.message}, file: ${data.fileName || "No file"}`)
-          setInputValue("")
-          setSelectedFile(null)
-        })
-        .catch((err) => {
-          setResponseMessage(`❌ ${err.message || "Unknown error"}`)
-        })
-    })
+
+      if (!res.ok) throw new Error(`Server error: ${res.status}`)
+
+      const data = await res.json()
+      setResponseMessage(`✅ ${data.message}, file: ${data.fileName || "No file"}`)
+      setInputValue("")
+      setSelectedFile(null)
+    } catch (err: any) {
+      setResponseMessage(`❌ ${err.message || "Unknown error"}`)
+    } finally {
+      setIsLoading(false)
+    }
   }, [inputValue, selectedFile])
 
-  // 📦 Memoized badges
   const suggestionBadges = useMemo(
     () =>
       SUGGESTIONS.map((text) => (
@@ -114,7 +107,7 @@ export default function Landingpage() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 className="w-full min-h-[100px] border-0 focus-visible:ring-0 text-lg p-6 resize-none bg-black text-white placeholder:text-gray-500"
-                disabled={isGenerating}
+                disabled={isLoading}
               />
 
               <div className="absolute bottom-4 left-4 flex items-center gap-2">
@@ -122,8 +115,9 @@ export default function Landingpage() {
                   size="icon"
                   variant="ghost"
                   className="h-8 w-8 text-gray-400 hover:text-white"
-                  onClick={handleImageIconClick}
-                  disabled={isGenerating}
+                  onClick={handleImageClick}
+                  disabled={isLoading}
+                  aria-label="Upload Image"
                 >
                   <ImageIcon className="w-4 h-4" />
                 </Button>
@@ -134,7 +128,7 @@ export default function Landingpage() {
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   className="hidden"
-                  disabled={isGenerating}
+                  disabled={isLoading}
                 />
 
                 {selectedFile && (
@@ -146,16 +140,18 @@ export default function Landingpage() {
 
               <Button
                 size="icon"
-                onClick={handleGenerateApp}
-                disabled={!inputValue.trim() || isGenerating}
+                onClick={handleGenerate}
+                disabled={!inputValue.trim() || isLoading}
                 className="absolute bottom-4 right-4 h-8 w-8 bg-white text-black hover:bg-gray-200"
+                aria-label="Generate App"
               >
-                {isGenerating ? (
+                {isLoading ? (
                   <svg
                     className="animate-spin h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <circle
                       className="opacity-25"
@@ -178,9 +174,7 @@ export default function Landingpage() {
             </div>
 
             <div className="flex items-center justify-between px-6 py-3 border-t border-gray-800">
-              <div className="text-sm text-gray-400">
-                5 free messages left today.
-              </div>
+              <div className="text-sm text-gray-400">5 free messages left today.</div>
             </div>
           </Card>
 
