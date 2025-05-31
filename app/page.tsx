@@ -1,11 +1,10 @@
 
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ImageIcon, Send, Sparkles } from "lucide-react";
+import { ImageIcon, Send } from "lucide-react";
 
 export default function Landingpage() {
   const [inputValue, setInputValue] = useState("");
@@ -27,6 +26,12 @@ export default function Landingpage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) setSelectedFile(files[0]);
+  };
+
+  const handleClearInput = () => {
+    setInputValue("");
+    setSelectedFile(null);
+    setResponseMessage(null);
   };
 
   const handleGenerateApp = async () => {
@@ -82,8 +87,7 @@ export default function Landingpage() {
           Build any mobile app, fast.
         </h1>
         <p className="text-gray-400 mt-3">
-          Rork builds complete, cross-platform mobile apps using AI and React
-          Native.
+          Rork builds complete, cross-platform mobile apps using AI and React Native.
         </p>
       </div>
 
@@ -92,24 +96,40 @@ export default function Landingpage() {
         <input
           type="text"
           placeholder="Describe the mobile app you want to build..."
-          className="w-full rounded-xl bg-gray-900 border border-gray-700 placeholder-gray-500 text-white text-lg pl-12 pr-12 py-4
-            focus:outline-none focus:ring-2 focus:ring-blue-600 transition"
+          className={`w-full rounded-xl bg-gray-900 border border-gray-700 placeholder-gray-500 text-white text-lg pl-14 pr-14 py-4
+            focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-md transition
+            disabled:cursor-not-allowed disabled:opacity-60`}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={isGenerating}
           aria-label="App description input"
+          autoComplete="off"
         />
 
-        {/* Left icon */}
+        {/* Left icon: Image Upload */}
         <button
           type="button"
           onClick={handleImageIconClick}
           disabled={isGenerating}
           aria-label="Upload image"
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition"
+          tabIndex={0}
         >
-          <ImageIcon className="w-5 h-5" />
+          <ImageIcon className="w-6 h-6" />
         </button>
+
+        {/* Clear input button */}
+        {inputValue && !isGenerating && (
+          <button
+            type="button"
+            onClick={handleClearInput}
+            aria-label="Clear input"
+            className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
+            tabIndex={0}
+          >
+            ×
+          </button>
+        )}
 
         {/* Hidden file input */}
         <input
@@ -121,13 +141,13 @@ export default function Landingpage() {
           disabled={isGenerating}
         />
 
-        {/* Right icon */}
+        {/* Right icon: Generate */}
         <button
           type="button"
           onClick={handleGenerateApp}
           disabled={!inputValue.trim() || isGenerating}
           aria-label="Generate App"
-          className={`absolute right-3 top-1/2 -translate-y-1/2 text-white bg-blue-600 rounded-full p-2
+          className={`absolute right-4 top-1/2 -translate-y-1/2 text-white bg-blue-600 rounded-full p-2
             hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition
             ${isGenerating ? "cursor-wait" : "cursor-pointer"}`}
         >
@@ -163,7 +183,9 @@ export default function Landingpage() {
       <div className="flex items-center justify-between max-w-xl w-full mt-3 text-gray-400 text-sm select-none">
         <div>
           5 free messages left today.{" "}
-          <button className="underline hover:text-white transition">Upgrade</button>
+          <button className="underline hover:text-white transition" type="button">
+            Upgrade
+          </button>
         </div>
 
         {/* Public toggle pill */}
