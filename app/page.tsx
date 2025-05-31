@@ -1,21 +1,21 @@
+
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { ImageIcon, Send, Sparkles } from "lucide-react";
 
 export default function Landingpage() {
   const [inputValue, setInputValue] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
+  const [isPublic, setIsPublic] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Force dark mode on mount by adding 'dark' class
   useEffect(() => {
     document.documentElement.classList.add("dark");
   }, []);
@@ -26,9 +26,7 @@ export default function Landingpage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      setSelectedFile(files[0]);
-    }
+    if (files && files.length > 0) setSelectedFile(files[0]);
   };
 
   const handleGenerateApp = async () => {
@@ -40,22 +38,20 @@ export default function Landingpage() {
     try {
       const formData = new FormData();
       formData.append("description", inputValue);
-      if (selectedFile) {
-        formData.append("image", selectedFile);
-      }
+      if (selectedFile) formData.append("image", selectedFile);
 
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
       const data = await res.json();
       setResponseMessage(
-        `Success! Server responded: ${data.message}, file: ${data.fileName || "No file"}`
+        `Success! Server responded: ${data.message}, file: ${
+          data.fileName || "No file"
+        }`
       );
       setInputValue("");
       setSelectedFile(null);
@@ -79,127 +75,140 @@ export default function Landingpage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black transition-colors duration-300">
-      <div className="relative">
-        <header className="bg-black/95 backdrop-blur-sm transition-colors duration-300">
-          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center transition-colors duration-300">
-                <span className="text-black font-bold text-sm">M0</span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-4 py-12">
+      {/* Header */}
+      <div className="mb-12 text-center max-w-xl w-full">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          Build any mobile app, fast.
+        </h1>
+        <p className="text-gray-400 mt-3">
+          Rork builds complete, cross-platform mobile apps using AI and React
+          Native.
+        </p>
+      </div>
 
-            {/* Removed Sign In and Theme toggle buttons */}
-          </div>
-        </header>
+      {/* Input Box */}
+      <div className="relative max-w-xl w-full">
+        <input
+          type="text"
+          placeholder="Describe the mobile app you want to build..."
+          className="w-full rounded-xl bg-gray-900 border border-gray-700 placeholder-gray-500 text-white text-lg pl-12 pr-12 py-4
+            focus:outline-none focus:ring-2 focus:ring-blue-600 transition"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          disabled={isGenerating}
+          aria-label="App description input"
+        />
 
-        <main className="container mx-auto px-6 py-20">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gray-800 rounded-full px-4 py-2 text-sm text-gray-300 mb-8 transition-colors duration-300">
-              <Sparkles className="w-4 h-4" />
-              AI-Powered Mobile Development
-            </div>
+        {/* Left icon */}
+        <button
+          type="button"
+          onClick={handleImageIconClick}
+          disabled={isGenerating}
+          aria-label="Upload image"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition"
+        >
+          <ImageIcon className="w-5 h-5" />
+        </button>
 
-            <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent leading-tight transition-colors duration-300">
-              Build any mobile app, fast.
-            </h1>
+        {/* Hidden file input */}
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          disabled={isGenerating}
+        />
 
-            <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed transition-colors duration-300">
-              Rork builds complete, cross-platform mobile apps using AI and React Native.
-            </p>
+        {/* Right icon */}
+        <button
+          type="button"
+          onClick={handleGenerateApp}
+          disabled={!inputValue.trim() || isGenerating}
+          aria-label="Generate App"
+          className={`absolute right-3 top-1/2 -translate-y-1/2 text-white bg-blue-600 rounded-full p-2
+            hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition
+            ${isGenerating ? "cursor-wait" : "cursor-pointer"}`}
+        >
+          {isGenerating ? (
+            <svg
+              className="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+          ) : (
+            <Send className="w-5 h-5" />
+          )}
+        </button>
+      </div>
 
-            <Card className="max-w-4xl mx-auto p-1 shadow-lg border-gray-700 bg-black transition-colors duration-300">
-              <div className="relative">
-                <Textarea
-                  placeholder="Describe the mobile app you want to build..."
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  className="w-full min-h-[140px] border-0 focus-visible:ring-0 text-lg p-6 resize-none bg-black text-white placeholder:text-gray-500 transition-colors duration-300"
-                  disabled={isGenerating}
-                />
-                <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 text-gray-400 hover:text-white transition-colors duration-300"
-                    onClick={handleImageIconClick}
-                    disabled={isGenerating}
-                    aria-label="Upload image"
-                  >
-                    <ImageIcon className="w-4 h-4" />
-                  </Button>
+      {/* Info row below input */}
+      <div className="flex items-center justify-between max-w-xl w-full mt-3 text-gray-400 text-sm select-none">
+        <div>
+          5 free messages left today.{" "}
+          <button className="underline hover:text-white transition">Upgrade</button>
+        </div>
 
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    disabled={isGenerating}
-                  />
+        {/* Public toggle pill */}
+        <button
+          onClick={() => setIsPublic(!isPublic)}
+          className={`select-none cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition
+            ${
+              isPublic
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          aria-pressed={isPublic}
+          aria-label="Toggle Public/Private"
+          type="button"
+        >
+          {isPublic ? "Public" : "Private"}
+        </button>
+      </div>
 
-                  {selectedFile && (
-                    <span className="text-sm text-gray-400 ml-2">
-                      {selectedFile.name}
-                    </span>
-                  )}
-                </div>
+      {/* Selected file name */}
+      {selectedFile && (
+        <div className="max-w-xl w-full mt-2 text-gray-500 text-sm truncate">
+          Selected file: {selectedFile.name}
+        </div>
+      )}
 
-                <Button
-                  size="icon"
-                  onClick={handleGenerateApp}
-                  disabled={!inputValue.trim() || isGenerating}
-                  className="absolute bottom-4 right-4 h-8 w-8 bg-white text-black hover:bg-gray-200 transition-colors duration-300"
-                  aria-label="Generate App"
-                >
-                  {isGenerating ? (
-                    <svg
-                      className="animate-spin h-5 w-5 text-black"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8H4z"
-                      ></path>
-                    </svg>
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </Card>
+      {/* Response message */}
+      {responseMessage && (
+        <div className="max-w-xl w-full mt-6 text-center text-gray-400 text-sm">
+          {responseMessage}
+        </div>
+      )}
 
-            {responseMessage && (
-              <div className="max-w-4xl mx-auto text-center text-sm text-gray-400 my-6">
-                {responseMessage}
-              </div>
-            )}
-
-            <div className="flex flex-wrap justify-center gap-4">
-              {suggestions.map((suggestion, index) => (
-                <Badge
-                  key={index}
-                  variant="outline"
-                  className="cursor-pointer hover:bg-gray-700 transition-colors duration-300"
-                  onClick={() => setInputValue(suggestion)}
-                >
-                  {suggestion}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </main>
+      {/* Suggestions */}
+      <div className="max-w-xl w-full mt-10 flex flex-wrap gap-3 justify-center">
+        {suggestions.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => setInputValue(s)}
+            className="rounded-full border border-gray-700 px-4 py-1 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition"
+            type="button"
+          >
+            {s}
+          </button>
+        ))}
       </div>
     </div>
   );
