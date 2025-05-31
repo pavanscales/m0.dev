@@ -1,39 +1,45 @@
-import { NextResponse } from 'next/server';
-import { OpenAI } from 'openai';
+import { NextResponse } from "next/server";
+import { OpenAI } from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(request) {
+export async function POST(req: Request) {
   try {
-    const { prompt } = await request.json();
+    const { prompt } = await req.json();
 
-    if (!prompt) {
-      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+    if (typeof prompt !== "string" || !prompt.trim()) {
+      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const systemPrompt = `You are a React Native expert. Generate clean, pixel-perfect React Native code based on this UI description:
-
-${prompt}
-
-Return only the code inside a code block without extra explanation.`;
+    const messages: OpenAI.ChatCompletionMessageParam[] = [
+      {
+        role: "system",
+        content: `You are a React Native expert. Generate clean, pixel-perfect React Native code based on this UI description:\n\n${prompt}\n\nReturn only the code inside a code block without extra explanation.`,
+      },
+      {
+        role: "user",
+        content: "Generate React Native code now.",
+      },
+    ];
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: 'Generate React Native code now.' },
-      ],
+      model: "gpt-4",
+      messages,
       max_tokens: 1500,
       temperature: 0.2,
     });
 
-    const generatedCode = completion.choices[0].message.content;
+    const generatedCode = completion.choices?.[0]?.message?.content?.trim();
 
-    return NextResponse.json({ code: generatedCode });
-  } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'OpenAI API error' }, { status: 500 });
+    if (!generatedCode) {
+      return NextResponse.json({ error: "No code generated" }, { status: 500 });
+    }
+
+    return NextResponse.json({ code: generatedCode }, { status: 200 });
+  } catch (err) {
+    console.error("OpenAI API Error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
