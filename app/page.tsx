@@ -172,16 +172,11 @@ export default function Landingpage() {
                   )}
                 </Button>
               </div>
-
-              {/* New section for messages left and public toggle */}
               <div className="flex items-center justify-between px-6 py-3 border-t border-gray-800">
                 <div className="text-sm text-gray-400">
-                  5 free messages left today. <span className="text-white hover:underline cursor-pointer">Upgrade</span>
+                  5 free messages left today.
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">Public</span>
-                  <Switch checked={isPublic} onCheckedChange={setIsPublic} className="data-[state=checked]:bg-white" />
-                </div>
+                
               </div>
             </Card>
 
