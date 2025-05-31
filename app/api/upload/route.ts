@@ -8,44 +8,24 @@ export async function POST(req: Request): Promise<Response> {
     const file = formData.get("image");
 
     if (typeof description !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Invalid description format" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ error: "Invalid description format" }, { status: 400 });
     }
 
-    const fileName = file && file instanceof File ? file.name : null;
+    if (!(file instanceof File)) {
+      return Response.json({ error: "Invalid or missing file" }, { status: 400 });
+    }
 
     console.log("📝 Description:", description);
-    console.log("🖼️ File:", fileName);
+    console.log("🖼️ File:", file.name);
 
-    return new Response(
-      JSON.stringify({
-        message: "Upload successful",
-        description,
-        fileName,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    return Response.json({
+      message: "Upload successful",
+      description,
+      fileName: file.name,
+    });
   } catch (err) {
     console.error("❌ Upload error:", err);
-
-    return new Response(
-      JSON.stringify({
-        error: "Upload failed",
-        details: err instanceof Error ? err.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const errorMsg = err instanceof Error ? err.message : "Unknown error";
+    return Response.json({ error: "Upload failed", details: errorMsg }, { status: 500 });
   }
 }
