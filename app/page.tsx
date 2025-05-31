@@ -1,15 +1,20 @@
-
-
 "use client"
 
-import React, { useState, useRef, useCallback, useEffect, useTransition } from "react"
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useTransition,
+  useMemo,
+} from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { ImageIcon, Send } from "lucide-react"
 
-const suggestions = [
+const SUGGESTIONS = Object.freeze([
   "Make a visual novel game",
   "Make an Airbnb-style app",
   "Make an Instagram-style app",
@@ -19,7 +24,7 @@ const suggestions = [
   "Create a todo list",
   "Design a weather dashboard",
   "Design a fitness tracker",
-]
+])
 
 export default function Landingpage() {
   const [inputValue, setInputValue] = useState("")
@@ -29,28 +34,32 @@ export default function Landingpage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Dark mode once
+  // 🔥 Force dark mode once (runs only on mount)
   useEffect(() => {
     document.documentElement.classList.add("dark")
   }, [])
 
+  // 🔄 Memoized handler to open file dialog
   const handleImageIconClick = useCallback(() => {
     fileInputRef.current?.click()
   }, [])
 
+  // 🖼️ File change logic
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) setSelectedFile(file)
   }, [])
 
+  // 🚀 Form submission logic
   const handleGenerateApp = useCallback(() => {
-    if (!inputValue.trim()) return
+    const trimmedInput = inputValue.trim()
+    if (!trimmedInput) return
 
     startGenerating(() => {
       setResponseMessage(null)
 
       const formData = new FormData()
-      formData.append("description", inputValue)
+      formData.append("description", trimmedInput)
       if (selectedFile) formData.append("image", selectedFile)
 
       fetch("/api/upload", {
@@ -69,6 +78,22 @@ export default function Landingpage() {
         })
     })
   }, [inputValue, selectedFile])
+
+  // 📦 Memoized badges
+  const suggestionBadges = useMemo(
+    () =>
+      SUGGESTIONS.map((text) => (
+        <Badge
+          key={text}
+          variant="outline"
+          className="cursor-pointer hover:bg-gray-700 transition"
+          onClick={() => setInputValue(text)}
+        >
+          {text}
+        </Badge>
+      )),
+    []
+  )
 
   return (
     <div className="min-h-screen bg-black transition-colors duration-300">
@@ -151,6 +176,7 @@ export default function Landingpage() {
                 )}
               </Button>
             </div>
+
             <div className="flex items-center justify-between px-6 py-3 border-t border-gray-800">
               <div className="text-sm text-gray-400">
                 5 free messages left today.
@@ -165,16 +191,7 @@ export default function Landingpage() {
           )}
 
           <div className="flex flex-wrap justify-center mt-10 gap-4">
-            {suggestions.map((suggestion) => (
-              <Badge
-                key={suggestion}
-                variant="outline"
-                className="cursor-pointer hover:bg-gray-700 transition"
-                onClick={() => setInputValue(suggestion)}
-              >
-                {suggestion}
-              </Badge>
-            ))}
+            {suggestionBadges}
           </div>
         </div>
       </main>
