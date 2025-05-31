@@ -180,9 +180,9 @@ export default function Landingpage() {
               </div>
             </Card>
 
-            {responseMessage && (
+            {/* {responseMessage && (
               <div className="max-w-4xl mx-auto text-center text-sm text-gray-400 my-6">{responseMessage}</div>
-            )}
+            )} */}
 
             <div className="flex flex-wrap justify-center gap-4">
               {suggestions.map((suggestion, index) => (
